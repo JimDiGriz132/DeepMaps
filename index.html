@@ -724,6 +724,7 @@
             </div>
             
             <label><input type="checkbox" id="chkMarkerInfo" checked> Include Marker Info / Notes</label>
+            <label><input type="checkbox" id="chkLegend" checked> Include Ring Legend (Gold/Silver/Bronze)</label>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -744,6 +745,7 @@
             <label><input type="checkbox" id="aeChkCards" checked> Include Fish Cards</label>
             <label><input type="checkbox" id="aeChkCardInfo" checked> Include Stats (Size/Speed/Minigame/OOS)</label>
             <label><input type="checkbox" id="aeChkMarkerInfo" checked> Include Marker Info</label>
+            <label><input type="checkbox" id="aeChkLegend" checked> Include Ring Legend (Gold/Silver/Bronze)</label>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px; background:#1a1a1a; border:1px solid #444; border-radius:4px; padding:8px; margin-bottom:12px;">
@@ -1854,7 +1856,8 @@
             includeSize: document.getElementById('chkStatSize').checked,
             includeSpeed: document.getElementById('chkStatSpeed').checked,
             includeMinigame: document.getElementById('chkStatMinigame').checked,
-            includeOOS: document.getElementById('chkStatOOS').checked
+            includeOOS: document.getElementById('chkStatOOS').checked,
+            includeLegend: document.getElementById('chkLegend').checked
         };
 
         closeExportModal();
@@ -1919,7 +1922,7 @@
         const exportRunId = `${Date.now()}-${Math.random()}`;
         const {
             includeMap, includeMarkers, includeCards, includeCardInfo, includeMarkerInfo,
-            includeSize, includeSpeed, includeMinigame, includeOOS,
+            includeSize, includeSpeed, includeMinigame, includeOOS, includeLegend,
             markerSize, markerMode, avatarColorStyle: avatarColorStyleOverride
         } = options;
 
@@ -1989,15 +1992,44 @@
             mainMap.style.width = `${fixedMapHeight}px`;
         }
 
+        const legendHeight = 14;
+
         targetElement.style.width = 'max-content';
-        targetElement.style.height = `${fixedMapHeight + 100}px`;
+        targetElement.style.height = `${fixedMapHeight + 100 + (includeLegend ? legendHeight : 0)}px`;
         targetElement.style.position = 'relative';
         targetElement.style.display = 'flex';
         targetElement.style.alignItems = 'center';
         targetElement.style.justifyContent = 'center';
         targetElement.style.gap = '30px';
-        targetElement.style.padding = '50px 300px';
+        targetElement.style.padding = includeLegend
+            ? `${50 + legendHeight}px 300px 50px 300px`
+            : '50px 300px';
         targetElement.style.boxSizing = 'border-box';
+
+        // Gold/Silver/Bronze ring legend, pinned to the top of the exported image.
+        // Colors match the .quality-gold/-silver/-bronze marker ring colors.
+        let legendEl = null;
+        if (includeLegend) {
+            legendEl = document.createElement('div');
+            legendEl.id = 'exportLegendBanner';
+            legendEl.style.position = 'absolute';
+            legendEl.style.top = '6px';
+            legendEl.style.left = '0';
+            legendEl.style.width = '100%';
+            legendEl.style.textAlign = 'center';
+            legendEl.style.fontSize = '22px';
+            legendEl.style.fontWeight = 'bold';
+            legendEl.style.fontFamily = 'Arial, sans-serif';
+            legendEl.style.zIndex = '50';
+            legendEl.style.pointerEvents = 'none';
+            legendEl.innerHTML =
+                '<span style="color:#FFD700;">Gold ring- best spot</span>' +
+                '<span style="color:#bbbbbb;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>' +
+                '<span style="color:#C0C0C0;">Silver ring- next</span>' +
+                '<span style="color:#bbbbbb;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>' +
+                '<span style="color:#CD7F32;">Bronze ring- last option</span>';
+            targetElement.appendChild(legendEl);
+        }
 
         let modifiedMinigames = [];
 
@@ -2260,6 +2292,8 @@
 
             activeCardsData.forEach(card => card.classList.add('active'));
 
+            if (legendEl && legendEl.parentNode) legendEl.parentNode.removeChild(legendEl);
+
             Object.keys(originalTargetStyles).forEach(key => {
                 targetElement.style[key] = originalTargetStyles[key];
             });
@@ -2478,6 +2512,7 @@
             includeSpeed: o.include_speed !== false,
             includeMinigame: o.include_minigame !== false,
             includeOOS: o.include_oos !== false,
+            includeLegend: o.include_legend !== false,
             markerSize: (typeof o.marker_size === 'number') ? o.marker_size : 40,
             markerMode: (typeof o.marker_mode === 'number') ? o.marker_mode : 0,
             avatarColorStyle: (typeof o.avatar_color_style === 'number') ? o.avatar_color_style : 0
@@ -2549,6 +2584,7 @@
             include_speed: true,
             include_minigame: true,
             include_oos: true,
+            include_legend: document.getElementById('aeChkLegend').checked,
             include_marker_info: document.getElementById('aeChkMarkerInfo').checked,
             marker_size: parseInt(document.getElementById('aeMarkerSizeSlider').value, 10),
             marker_mode: aeMarkerModeState,
@@ -2610,6 +2646,7 @@
         document.getElementById('aeChkCards').checked = data.include_cards !== false;
         document.getElementById('aeChkCardInfo').checked = data.include_card_info !== false;
         document.getElementById('aeChkMarkerInfo').checked = data.include_marker_info !== false;
+        document.getElementById('aeChkLegend').checked = data.include_legend !== false;
 
         const sizeVal = (typeof data.marker_size === 'number') ? data.marker_size : 40;
         document.getElementById('aeMarkerSizeSlider').value = sizeVal;
