@@ -1,25 +1,22 @@
 name: Monthly Discord Export
-
 on:
   schedule:
-    # 1. u mjesecu u 04:00 UTC — promijeni ovdje ako želiš drugi dan/sat
-    - cron: '0 4 1 * *'
-  workflow_dispatch: {}   # omogućuje i ručno pokretanje s GitHub UI-a (Actions tab -> Run workflow)
-
+    # Pokrece se 1. u mjesecu u 03:00 UTC - u tom trenutku je "danas" vec
+    # novi mjesec, pa client-side OOS provjera (new Date().getMonth()) u
+    # exportu ispravno prikazuje ribe koje su OOS za NOVI (tekuci) mjesec,
+    # a ne za mjesec koji je upravo zavrsio.
+    - cron: '0 3 1 * *'
+  workflow_dispatch: {}   # omogucuje i rucno pokretanje s GitHub UI-a (Actions tab -> Run workflow)
 jobs:
   export:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - run: npm install
-
       - run: npx playwright install --with-deps chromium
-
       - run: npm run export
         env:
           SITE_URL: ${{ secrets.SITE_URL }}
