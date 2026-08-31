@@ -338,11 +338,11 @@
 
         .fish-activity-badge {
             position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 32px;
-            height: 32px;
-            background: rgba(30, 30, 30, 0.85);
+            top: -13px;
+            right: -13px;
+            width: 45px;
+            height: 45px;
+            background: #5c2323;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -353,8 +353,8 @@
         }
 
         .fish-activity-badge img {
-            width: 20px;
-            height: 20px;
+            width: 28px;
+            height: 28px;
             object-fit: contain;
             filter: drop-shadow(0 0 2px #ffeb3b);
         }
@@ -725,6 +725,7 @@
             
             <label><input type="checkbox" id="chkMarkerInfo" checked> Include Marker Info / Notes</label>
             <label><input type="checkbox" id="chkLegend" checked> Include Ring Legend (Gold/Silver/Bronze)</label>
+            <label><input type="checkbox" id="chkWatermark" checked> Include Watermark ("Made with DeepMaps")</label>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -746,6 +747,7 @@
             <label><input type="checkbox" id="aeChkCardInfo" checked> Include Stats (Size/Speed/Minigame/OOS)</label>
             <label><input type="checkbox" id="aeChkMarkerInfo" checked> Include Marker Info</label>
             <label><input type="checkbox" id="aeChkLegend" checked> Include Ring Legend (Gold/Silver/Bronze)</label>
+            <label><input type="checkbox" id="aeChkWatermark" checked> Include Watermark ("Made with DeepMaps")</label>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px; background:#1a1a1a; border:1px solid #444; border-radius:4px; padding:8px; margin-bottom:12px;">
@@ -1857,7 +1859,8 @@
             includeSpeed: document.getElementById('chkStatSpeed').checked,
             includeMinigame: document.getElementById('chkStatMinigame').checked,
             includeOOS: document.getElementById('chkStatOOS').checked,
-            includeLegend: document.getElementById('chkLegend').checked
+            includeLegend: document.getElementById('chkLegend').checked,
+            includeWatermark: document.getElementById('chkWatermark').checked
         };
 
         closeExportModal();
@@ -1922,7 +1925,7 @@
         const exportRunId = `${Date.now()}-${Math.random()}`;
         const {
             includeMap, includeMarkers, includeCards, includeCardInfo, includeMarkerInfo,
-            includeSize, includeSpeed, includeMinigame, includeOOS, includeLegend,
+            includeSize, includeSpeed, includeMinigame, includeOOS, includeLegend, includeWatermark,
             markerSize, markerMode, avatarColorStyle: avatarColorStyleOverride
         } = options;
 
@@ -1957,6 +1960,11 @@
                 card.classList.remove('active');
                 activeCardsData.push(card);
             }
+            // Cards without the 'active' class render at opacity: 0.8, which made
+            // everything inside them (including the day/night badge) look faintly
+            // transparent in the export even though the live view looks solid.
+            // Force full opacity for the export capture regardless of active state.
+            card.style.opacity = '1';
 
             const sizeRow = card.querySelector('.stats-row:nth-of-type(1)');
             const speedRow = card.querySelector('.stats-row:nth-of-type(2)');
@@ -2223,14 +2231,14 @@
             }
             if (activityBadge) {
                 const badgeImg = activityBadge.querySelector('img');
-                activityBadge.style.width = `${32 * avatarScale}px`;
-                activityBadge.style.height = `${32 * avatarScale}px`;
-                activityBadge.style.top = `${-6 * avatarScale}px`;
-                activityBadge.style.right = `${-6 * avatarScale}px`;
+                activityBadge.style.width = `${45 * avatarScale}px`;
+                activityBadge.style.height = `${45 * avatarScale}px`;
+                activityBadge.style.top = `${-13 * avatarScale}px`;
+                activityBadge.style.right = `${-13 * avatarScale}px`;
                 activityBadge.style.borderWidth = `${2 * avatarScale}px`;
                 if (badgeImg) {
-                    badgeImg.style.width = `${20 * avatarScale}px`;
-                    badgeImg.style.height = `${20 * avatarScale}px`;
+                    badgeImg.style.width = `${28 * avatarScale}px`;
+                    badgeImg.style.height = `${28 * avatarScale}px`;
                     // Icon is already permanently tinted red on creation (see
                     // tintActivityIconPermanently), so nothing extra needed here for export.
                 }
@@ -2277,6 +2285,30 @@
                 windowHeight: 1080,
                 backgroundColor: '#222222'
             });
+
+            if (includeWatermark && resultCanvas) {
+                const wctx = resultCanvas.getContext('2d');
+                // html2canvas leaves its own scale transform applied to this context;
+                // without resetting it here, our coordinates get doubled again and the
+                // text ends up drawn off in the bottom-right corner, cut off.
+                wctx.setTransform(1, 0, 0, 1, 0, 0);
+                wctx.save();
+                wctx.globalAlpha = 0.14;
+                wctx.fillStyle = '#ffffff';
+                wctx.textAlign = 'center';
+                wctx.textBaseline = 'middle';
+                const cx = resultCanvas.width / 2;
+                const cy = resultCanvas.height / 2;
+                wctx.translate(cx, cy);
+                wctx.rotate(-25 * Math.PI / 180);
+                const titleSize = Math.round(resultCanvas.width * 0.026);
+                const subSize = Math.round(titleSize * 0.65);
+                wctx.font = `bold ${titleSize}px Arial, sans-serif`;
+                wctx.fillText('Made with DeepMaps', 0, -titleSize * 0.55);
+                wctx.font = `bold ${subSize}px Arial, sans-serif`;
+                wctx.fillText('@ CarpDiem', 0, subSize * 0.85);
+                wctx.restore();
+            }
         } catch (error) {
             console.error("Error generating screenshot:", error);
             resultCanvas = null;
@@ -2321,6 +2353,7 @@
                     card.style.padding = '';
                     card.style.gap = '';
                     card.style.position = '';
+                    card.style.opacity = '';
                 });
             });
 
@@ -2513,6 +2546,7 @@
             includeMinigame: o.include_minigame !== false,
             includeOOS: o.include_oos !== false,
             includeLegend: o.include_legend !== false,
+            includeWatermark: o.include_watermark !== false,
             markerSize: (typeof o.marker_size === 'number') ? o.marker_size : 40,
             markerMode: (typeof o.marker_mode === 'number') ? o.marker_mode : 0,
             avatarColorStyle: (typeof o.avatar_color_style === 'number') ? o.avatar_color_style : 0
@@ -2585,6 +2619,7 @@
             include_minigame: true,
             include_oos: true,
             include_legend: document.getElementById('aeChkLegend').checked,
+            include_watermark: document.getElementById('aeChkWatermark').checked,
             include_marker_info: document.getElementById('aeChkMarkerInfo').checked,
             marker_size: parseInt(document.getElementById('aeMarkerSizeSlider').value, 10),
             marker_mode: aeMarkerModeState,
@@ -2647,6 +2682,7 @@
         document.getElementById('aeChkCardInfo').checked = data.include_card_info !== false;
         document.getElementById('aeChkMarkerInfo').checked = data.include_marker_info !== false;
         document.getElementById('aeChkLegend').checked = data.include_legend !== false;
+        document.getElementById('aeChkWatermark').checked = data.include_watermark !== false;
 
         const sizeVal = (typeof data.marker_size === 'number') ? data.marker_size : 40;
         document.getElementById('aeMarkerSizeSlider').value = sizeVal;

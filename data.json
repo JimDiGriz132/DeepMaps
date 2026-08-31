@@ -75,7 +75,7 @@
     { "id": "f_BlackSaddledCoralGrouper", "name": "Black Saddled Coral Grouper", "img": "images/fishes/fish_BlackSaddled_mini.png", "shadowSize": [3, 4], "shadowSpeed": [1, 2]},
     { "id": "f_Albacore", "name": "Albacore", "img": "images/fishes/fish_Albacore_mini.png", "shadowSize": [3, 4], "shadowSpeed": [3], "activity": "day", "oos": [1, 2, 3] },
     { "id": "f_GoldenTrevally", "name": "Golden Trevally", "img": "images/fishes/fish_GoldenTrevally_mini.png", "shadowSize": [3, 4], "shadowSpeed": [1, 2], "oos": [1, 2, 11, 12] },
-    { "id": "f_QueenslandGrouper", "name": "Queensland Grouper", "img": "images/fishes/fish_QueenslandGrouper_mini.png", "shadowSize": [5], "shadowSpeed": [1], "minigame": "big_moving", "rarity": "rare" },
+    { "id": "f_QueenslandGrouper", "name": "Queensland Grouper", "img": "images/fishes/fish_QueenslandGrouper_mini.png", "shadowSize": [5], "shadowSpeed": [1], "minigame": "big_moving", "rarity": "rare", "oos": [4, 5, 6, 7, 8, 9, 10, 11] },
     { "id": "f_CoralTrout", "name": "Coral Trout", "img": "images/fishes/fish_CoralTrout_mini.png", "shadowSize": [3, 4], "shadowSpeed": [1, 2], "activity": "day", "oos": [1, 2, 3, 4, 12] },
     { "id": "f_Tailor", "name": "Tailor", "img": "images/fishes/fish_Tailor_mini.png", "shadowSize": [3, 4], "shadowSpeed": [3], "oos": [1, 7, 8, 9, 10, 11, 12] },
     { "id": "f_Barramundi", "name": "Barramundi", "img": "images/fishes/fish_Barramundi_mini.png", "shadowSize": [3, 4], "shadowSpeed": [1], "oos": [1, 6, 7, 8, 9, 10, 11, 12] },
