@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Deep Maps</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -279,12 +280,12 @@
         .fish-name-label {
             font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-weight: 500;
-            font-size: calc(var(--fs) * 1.8); /* Povećano s 1.267 na 1.5, pa dodatno na 1.8 */
+            font-size: calc(var(--fs) * 1.8);
             line-height: 1.15;
             color: #fff;
-            /* Ime se lomi u max 2 reda (umjesto ellipsis skraćivanja u 1 redu),
-               a min-height uvijek rezervira prostor za 2 reda da sve kartice
-               budu unificirane visine bez obzira na duljinu imena. */
+            /* Name wraps to a max of 2 lines (instead of 1-line ellipsis truncation);
+               min-height always reserves room for 2 lines so every card ends up
+               the same height regardless of how long the name is. */
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
@@ -360,7 +361,7 @@
         }
 
         .fish-stats { 
-            font-size: calc(var(--fs) * 1.1); /* Povećano s 0.867 na 1.1 */
+            font-size: calc(var(--fs) * 1.1);
             color: #aaa; 
             display: flex; 
             flex-direction: column; 
@@ -369,7 +370,7 @@
         }
 
         .stats-row {
-            font-size: calc(var(--fs) * 1.8); /* Smanjeno s 2.2 na 1.8 da ostane mjesta za info box */
+            font-size: calc(var(--fs) * 1.8);
             color: #aaa;
             display: flex;
             flex-direction: column;
@@ -377,7 +378,7 @@
         }
 
         .speed-icon {
-            font-size: calc(var(--fs) * 2.1); /* Smanjeno s 2.6 na 2.1 */
+            font-size: calc(var(--fs) * 2.1);
             color: #444;
             opacity: 0.7;
             font-weight: bold;
@@ -393,12 +394,12 @@
             gap: calc(var(--fs) * 0.4); 
             align-items: flex-end;
             justify-content: flex-start;
-            height: calc(var(--fs) * 2.9); /* Smanjeno s 3.533 na 2.9 */
+            height: calc(var(--fs) * 2.9);
         }
 
         .shadow-svg-icon {
-            fill: #777; /* Posvijetljeno s #444 na svjetliju sivu */
-            opacity: 0.5; /* Povećana vidljivost s 0.3 na 0.5 */
+            fill: #777;
+            opacity: 0.5;
             transition: 0.2s;
             display: inline-block;
         }
@@ -597,6 +598,113 @@
             gap: 6px;
             margin-top: 4px;
             margin-bottom: 8px;
+        }
+
+        /* ===================== MOBILE / SMALL SCREEN LAYOUT ===================== */
+        @media (max-width: 900px) {
+            html, body { height: auto; min-height: 100vh; overflow-y: auto; overflow-x: hidden; }
+
+            .top-bar {
+                flex-wrap: wrap;
+                padding: 8px;
+                gap: 8px;
+            }
+            .map-selector {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(3, minmax(48px, auto));
+                width: 100%;
+                order: 1;
+            }
+            .map-btn { font-size: 10px; padding: 3px; }
+            .admin-controls {
+                width: 100%;
+                order: 2;
+            }
+            .admin-controls-row button { padding: 12px 4px; font-size: 12px; min-height: 40px; }
+
+            .main-layout {
+                flex-direction: column;
+                overflow-y: visible;
+                overflow-x: hidden;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 40vh;
+                border-right: none;
+                border-bottom: 2px solid #222;
+                box-sizing: border-box;
+            }
+            .set-btn { padding: 14px; }
+
+            .stage {
+                flex-direction: column;
+                padding: 10px;
+                overflow: visible;
+                gap: 12px;
+            }
+            #mapWrapper { width: 100%; order: 1; }
+            #mainMap { max-height: 55vh; max-width: 100%; }
+
+            .fish-column {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+                gap: 10px;
+            }
+            #fishColumnLeft { order: 2; }
+            #fishColumnRight { order: 3; }
+            .fish-card {
+                flex: 1 1 260px;
+                min-width: 220px;
+                height: auto;
+                min-height: 0;
+                overflow: visible;
+                /* Container queries need a definite size, which a hand-content
+                   height can't give on mobile, so switch --fs to a fixed value
+                   here and let the card grow to fit whatever it contains. */
+                container-type: normal;
+                --fs: 12px;
+            }
+
+            /* Modals positioned via fixed left/right (qualityModal, editMarkerModal):
+               fit inside the viewport with room to scroll on small screens */
+            #qualityModal,
+            #editMarkerModal {
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                width: 90vw !important;
+                max-width: 360px;
+                max-height: 85vh;
+                overflow-y: auto;
+                box-sizing: border-box;
+            }
+
+            /* Full-screen overlay modals (exportModal, autoExportModal): let their
+               centered inner card shrink to fit instead of a fixed pixel width */
+            #exportModal > div,
+            #autoExportModal > div {
+                width: 90vw !important;
+                max-width: 420px;
+                max-height: 85vh;
+                overflow-y: auto;
+                box-sizing: border-box;
+            }
+
+            /* Bigger touch targets for markers and controls */
+            .marker { touch-action: none; }
+            input[type="range"] { height: 20px; }
+            .triple-toggle, .dual-toggle { height: 30px; }
+            .triple-toggle-option, .dual-toggle-option { line-height: 30px; font-size: 11px; }
+        }
+
+        @media (max-width: 480px) {
+            .map-selector { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, minmax(44px, auto)); }
+            .fish-card { min-width: 100%; }
+            .admin-controls-row { flex-direction: column; }
         }
     </style>
 </head>
@@ -819,10 +927,10 @@
     let selectedFish = null;
     let pendingMarkerData = null;
     let isAdmin = false;
-    let markerModeState = 0; // 0 = Fish, 1 = Color+Fish, 2 = Color
-    let avatarColorStyle = 0; // 0 = colored ring around avatar, 1 = small color dot next to avatar
-    let aeMarkerModeState = 0; // marker style used specifically for automated/pushed exports
-    let aeAvatarColorStyleState = 0; // avatar color style used specifically for automated/pushed exports
+    let markerModeState = 0;
+    let avatarColorStyle = 0;
+    let aeMarkerModeState = 0;
+    let aeAvatarColorStyleState = 0;
 
     const ADMIN_EMAIL = "admin@deepmaps.local"; 
 
@@ -836,12 +944,9 @@
                     const eyeDropper = new EyeDropper();
                     const result = await eyeDropper.open();
                     applyPickedColor(inputId, result.sRGBHex);
-                } catch (err) {
-                    // korisnik otkazao - ignoriraj
-                }
+                } catch (err) {}
                 return;
             }
-            // Fallback za Firefox i ostale preglednike bez EyeDropper API-ja
             pickColorFromScreenFallback(inputId);
         };
 
@@ -864,7 +969,7 @@
             try {
                 stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
             } catch (err) {
-                return; // korisnik odbio dijeljenje ekrana
+                return;
             }
 
             try {
@@ -877,7 +982,6 @@
 
                 await video.play();
 
-                // Pričekaj da video stvarno ima dekodirani frame (ne samo metapodatke)
                 await new Promise((resolve, reject) => {
                     let settled = false;
                     const check = () => {
@@ -991,9 +1095,7 @@
         fetchAndDrawMarkers();
     };
 
-    // Shared by fetchAndDrawMarkers() (live) and renderExportCanvas() (export override).
-    // mode: 0/1/2 same as markerModeState (color only shows when mode > 0).
-    // colorStyle: 0 = colored ring border around the avatar, 1 = small color dot swatch.
+    // Shared by the live map and the export renderer to draw marker avatar/color styling.
     function applyAvatarColorStyling(mode, colorStyle) {
         document.querySelectorAll('.fish-card').forEach(card => {
             const fishId = card.dataset.fishId;
@@ -1141,8 +1243,7 @@
         fetchAndDrawMarkers();
     };
 
-    // Ako je stranica reloadana dok je admin još prijavljen (Supabase Auth
-    // sesija se pamti u localStorage), automatski vrati "Admin: ON" stanje.
+    // Restore "Admin: ON" state on reload if a Supabase Auth session is still active.
     (async function restoreAdminSessionOnLoad() {
         const { data: { session } } = await db.auth.getSession();
         if (session) {
@@ -1342,10 +1443,7 @@
             card.onclick = () => activateFish(fish);
             targetCol.appendChild(card);
 
-            // Icons ship as plain white PNGs; tint them to the same red as the
-            // info-badge once loaded, permanently, so both the live view and any
-            // later html2canvas export show the same colored icon (see
-            // tintImageToDataUrl for why this uses canvas instead of CSS filter/mask).
+            // Tint the white activity icon red on load so live view and exports match.
             const activityImg = card.querySelector('.fish-activity-badge img');
             if (activityImg) tintActivityIconPermanently(activityImg);
         }
@@ -1429,7 +1527,7 @@
             return;
         }
 
-        // Propagiraj boju na ostale markere iste ribe na ovoj mapi
+        // Propagate the color to other markers of the same fish on this map.
         const { error: colorError } = await db.from('markers')
             .update({ color: pendingMarkerData.color })
             .eq('fish_id', pendingMarkerData.fish_id)
@@ -1624,7 +1722,7 @@
     let removeImageFlag = false;
 
     document.addEventListener('click', function(event) {
-        if (event.target.closest('.eyedropper-overlay')) return; // ne zatvaraj modal zbog pipete
+        if (event.target.closest('.eyedropper-overlay')) return;
         const modal = document.getElementById('editMarkerModal');
         if (modal.style.display === 'block' && !modal.contains(event.target)) {
             if (!event.target.closest('.marker')) {
@@ -1768,7 +1866,6 @@
             imageUrl = publicUrlData.publicUrl;
         }
 
-        // Info i slika vežu se samo uz ovaj konkretan marker
         const { error: infoError } = await db.from('markers')
             .update({ info: newInfo, ingame_img: imageUrl })
             .eq('id', activeEditingMarkerId);
@@ -1779,7 +1876,6 @@
             return;
         }
 
-        // Boja se propagira na sve markere iste ribe na ovoj mapi
         const { error: colorError } = await db.from('markers')
             .update({ color: newColor })
             .eq('fish_id', currentMarkerObj.fish_id)
@@ -1839,10 +1935,7 @@
         subContainer.style.opacity = '1';
     }
     
-    // Guard against overlapping export runs — without this, clicking export
-    // buttons multiple times (or an automated run overlapping a manual one)
-    // causes concurrent renderExportCanvas() calls to write into the same
-    // shared DOM (fish cards, marker-info boxes), duplicating content.
+    // Guard against overlapping export runs writing into the same shared DOM.
     let exportBusy = false;
 
     window.generateExportImage = async function() {
@@ -1880,12 +1973,9 @@
         }
     };
 
-    // Core render logic shared by manual download AND automated/silent exports.
-    // Returns a canvas, or null on error. Always restores the DOM afterwards.
-    // Recolors a loaded white/monochrome <img> to a solid color via an offscreen
-    // canvas (source-in composite keeps only the icon's alpha shape). Returns null
-    // (and leaves the image untouched) if the image isn't decoded yet or the canvas
-    // read fails for any reason - callers should treat that as "skip tinting".
+    // Core render logic shared by manual and automated exports. Returns a canvas
+    // (or null on error) and always restores the DOM afterwards.
+    // Recolors a loaded white/monochrome <img> to a solid color via an offscreen canvas.
     function tintImageToDataUrl(img, color) {
         try {
             const w = img.naturalWidth;
@@ -1906,9 +1996,7 @@
         }
     }
 
-    // Applies tintImageToDataUrl once the icon has actually decoded, swapping its
-    // src permanently - used for the day/night activity icon so it's yellow (matches
-    // OOS/info text) in the live view too, not just at export time.
+    // Applies tintImageToDataUrl once the icon has decoded, swapping its src permanently.
     function tintActivityIconPermanently(img, color = '#f3d674') {
         const apply = () => {
             const tinted = tintImageToDataUrl(img, color);
@@ -1929,9 +2017,8 @@
             markerSize, markerMode, avatarColorStyle: avatarColorStyleOverride
         } = options;
 
-        // markerSize/markerMode/avatarColorStyleOverride are only passed in by the
-        // automated/pushed export flow (getGlobalExportOptions). Manual "Generate &
-        // Download" leaves them undefined, so it keeps using whatever is currently shown.
+        // markerSize/markerMode/avatarColorStyleOverride are only set by automated exports;
+        // manual "Generate & Download" leaves them undefined and uses the live state.
         const originalMarkerSizeVar = document.documentElement.style.getPropertyValue('--marker-size');
         if (typeof markerSize === 'number') {
             document.documentElement.style.setProperty('--marker-size', markerSize + 'px');
@@ -1960,9 +2047,6 @@
                 card.classList.remove('active');
                 activeCardsData.push(card);
             }
-            // Cards without the 'active' class render at opacity: 0.8, which made
-            // everything inside them (including the day/night badge) look faintly
-            // transparent in the export even though the live view looks solid.
             // Force full opacity for the export capture regardless of active state.
             card.style.opacity = '1';
 
@@ -2098,7 +2182,7 @@
         let modifiedMarkers = []; 
 
         if (currentMap) {
-            // Dohvaćamo markere isključivo za ribe koje su u trenutnom setu (ili sve ako set nije definiran)
+            // Fetch markers only for fish in the current set (or all if no set is defined)
             let query = db.from('markers').select('*').eq('map_id', currentMap.id);
             if (currentSet && currentSet.fishes) {
                 query = query.in('fish_id', currentSet.fishes);
@@ -2106,7 +2190,7 @@
             const res = await query;
             markersData = res.data || [];
 
-            // Privremeno crtamo markere tog seta na mapu za vrijeme eksporta
+            // Temporarily draw that set's markers onto the map for the duration of the export
             const markersLayer = document.getElementById('markersLayer');
             if (markersLayer) {
                 markersLayer.innerHTML = '';
@@ -2136,9 +2220,7 @@
                         el.style.backgroundColor = markerColor;
                     }
 
-                    // Bug fix: the badge was never created here (unlike fetchAndDrawMarkers),
-                    // so "Include Marker Info" had nothing to number/label onto in the
-                    // exported screenshot. Create it the same way the live map does.
+                    // Create the info badge the same way the live map does.
                     if (includeMarkerInfo && (m.info || m.ingame_img)) {
                         const badge = document.createElement('div');
                         badge.className = 'marker-info-badge';
@@ -2181,9 +2263,7 @@
                     }
                 });
 
-                // Same info text shared across multiple markers of the same fish gets
-                // combined into a single line with all its bracketed numbers up front,
-                // instead of repeating the same text once per marker.
+                // Combine identical info text across markers of the same fish into one line.
                 fishInfoGroups.forEach((groupMap, fishId) => {
                     const cardEl = document.querySelector(`.fish-card[data-fish-id="${fishId}"]`);
                     if (!cardEl) return;
@@ -2204,13 +2284,12 @@
             }
         }
 
-        // Applies whatever mode/style should be used for THIS export (override for
-        // automated/pushed exports, live state for manual "Generate & Download").
+        // Applies the mode/style for this export: an override for automated exports,
+        // or the live state for a manual download.
         applyAvatarColorStyling(effectiveMarkerMode, effectiveAvatarColorStyle);
 
-        // Readability boost for export only: bigger fish name + OOS badge text,
-        // with a slightly smaller avatar/color-dot to make room. Live view is
-        // untouched — these are inline overrides cleared again in `finally`.
+        // Readability boost for export only (bigger name/OOS text, smaller avatar);
+        // live view is untouched, these overrides are cleared again in `finally`.
         const exportAvatarSize = 62;
         document.querySelectorAll('.fish-card').forEach(card => {
             const avatarWrapper = card.querySelector('.fish-avatar-wrapper');
@@ -2219,9 +2298,7 @@
             const oosBox = card.querySelector('div[style*="background: rgba(0,0,0,0.2)"]');
             const activityBadge = card.querySelector('.fish-activity-badge');
 
-            // Scale the day/night activity badge by the same ratio the avatar itself
-            // is being shrunk by, so it doesn't stay oversized relative to the avatar
-            // in the export (badge is normally sized in fixed px, avatar in cqh units).
+            // Scale the activity badge by the same ratio the avatar is shrunk by.
             let avatarScale = 1;
             if (avatarWrapper) {
                 const originalAvatarSize = avatarWrapper.offsetWidth || exportAvatarSize;
@@ -2239,8 +2316,6 @@
                 if (badgeImg) {
                     badgeImg.style.width = `${28 * avatarScale}px`;
                     badgeImg.style.height = `${28 * avatarScale}px`;
-                    // Icon is already permanently tinted red on creation (see
-                    // tintActivityIconPermanently), so nothing extra needed here for export.
                 }
             }
             if (colorCircle) {
@@ -2249,16 +2324,14 @@
             }
             if (nameLabel) {
                 nameLabel.style.fontSize = '30px';
-                // html2canvas ne renderira -webkit-line-clamp/ellipsis pouzdano,
-                // pa ime ručno skraćujemo dok stane u 2 reda i sami dodamo "…".
-                // Privremeno skidamo line-clamp da scrollHeight odražava puni
-                // (neisječeni) tekst dok mjerimo koliko stane.
+                // html2canvas doesn't render line-clamp/ellipsis reliably, so the name
+                // is truncated manually to fit 2 lines.
                 nameLabel.dataset.fullName = nameLabel.dataset.fullName || nameLabel.textContent;
                 nameLabel.textContent = nameLabel.dataset.fullName;
                 nameLabel.style.webkitLineClamp = 'unset';
                 nameLabel.style.overflow = 'visible';
                 const lineHeight = parseFloat(getComputedStyle(nameLabel).lineHeight) || (30 * 1.15);
-                const maxHeight = lineHeight * 2 + 1; // +1px tolerancija za zaokruživanje
+                const maxHeight = lineHeight * 2 + 1; // +1px rounding tolerance
                 while (nameLabel.scrollHeight > maxHeight && nameLabel.textContent.length > 1) {
                     nameLabel.textContent = nameLabel.textContent.slice(0, -1);
                 }
@@ -2288,9 +2361,8 @@
 
             if (includeWatermark && resultCanvas) {
                 const wctx = resultCanvas.getContext('2d');
-                // html2canvas leaves its own scale transform applied to this context;
-                // without resetting it here, our coordinates get doubled again and the
-                // text ends up drawn off in the bottom-right corner, cut off.
+                // Reset the scale transform html2canvas leaves on this context, or
+                // coordinates get doubled and the text is drawn off-position.
                 wctx.setTransform(1, 0, 0, 1, 0, 0);
                 wctx.save();
                 wctx.globalAlpha = 0.14;
@@ -2316,8 +2388,7 @@
             if (typeof markerSize === 'number') {
                 document.documentElement.style.setProperty('--marker-size', originalMarkerSizeVar || '40px');
             }
-            // Restore the fish-card avatars back to whatever the live view actually has
-            // set, since we may have temporarily overridden it above for this export.
+            // Restore the fish-card avatars to the live view's actual state.
             applyAvatarColorStyling(markerModeState, avatarColorStyle);
             modifiedMinigames.forEach(item => { item.element.innerHTML = item.originalHTML; });
             modifiedMarkers.forEach(item => { item.element.innerHTML = item.originalHTML; });
@@ -2429,13 +2500,10 @@
         return Promise.race([Promise.all(promises), new Promise(res => setTimeout(res, timeout))]);
     }
 
-    // Switches to a given map+set (without needing DOM buttons), captures the export
-    // canvas, uploads it to a FIXED filename in Supabase Storage (so the public URL
-    // never changes), records the link, then restores whatever was selected before.
-    // Slanje slike na Discord ide preko server-side Edge Functiona (discord-post),
-    // ne direktno na webhook — pravi webhook URL nikad ne dolazi u browser, pa ga
-    // F12/View Source ne mogu otkriti. Funkcija sama nađe/obriše prijašnju poruku
-    // i upiše novi discord_message_id u bazu.
+    // Switches to a given map+set, captures the export canvas, uploads it to a fixed
+    // filename in Supabase Storage (so the public URL never changes), and records the
+    // link. Posting to Discord happens server-side via an Edge Function so the real
+    // webhook URL never reaches the browser.
     const DISCORD_POST_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/discord-post`;
 
     async function postToDiscordWebhook(blob, fileName, mapObj, setObj) {
@@ -2472,24 +2540,19 @@
         document.getElementById('mainMap').src = mapObj.img;
         document.getElementById('markersLayer').innerHTML = '';
         await renderFishSlots(setObj ? setObj.fishes : []);
-        // renderFishSlots() interno pokreće fetchAndDrawMarkers() BEZ await-a (fire-and-forget).
-        // U ručnom flowu to ne smeta (prođe vremena prije klika na Export), ali kod
-        // automatiziranog exporta moramo eksplicitno pričekati da se markeri stvarno
-        // iscrtaju ispravnim bojama prije nego uzmemo screenshot.
+        // Automated exports must explicitly wait for markers to finish drawing before
+        // the screenshot, since renderFishSlots() kicks that off fire-and-forget.
         await fetchAndDrawMarkers();
         await waitForImages(document.querySelector('.stage'));
 
         const canvas = await renderExportCanvas(options);
 
-        // restore previous selection
         currentMap = prevMap;
         currentSet = prevSet;
         if (prevMap) {
             document.getElementById('mainMap').src = prevMap.img;
             await renderFishSlots(prevSet ? prevSet.fishes : []);
-            // Isto tako pričekaj da se restore markera potpuno završi prije nego
-            // krenemo na sljedeći target u petlji — inače taj zakašnjeli poziv može
-            // upasti usred iduće snimke i pomiješati boje markera.
+            // Wait for the marker restore to finish before moving to the next target.
             await fetchAndDrawMarkers();
         } else {
             document.getElementById('mainMap').src = '';
@@ -2501,7 +2564,7 @@
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const fileName = `${mapObj.id}-${setObj.id}.png`;
 
-        await db.storage.from('exports').remove([fileName]); // Brisanje stare slike radi pokusaja clear cache-a
+        await db.storage.from('exports').remove([fileName]); // bust the CDN cache
 
         const { error: upErr } = await db.storage.from('exports').upload(fileName, blob, {
             upsert: true,
@@ -2525,8 +2588,7 @@
             updated_at: new Date().toISOString()
         }, { onConflict: 'map_id,set_id' });
 
-        // Discord post (uklj. brisanje prijašnje poruke i upis discord_message_id)
-        // radi se server-side u Edge Functionu — ovdje samo šaljemo sliku.
+        // The Discord post itself happens server-side in the Edge Function.
         await postToDiscordWebhook(blob, fileName, mapObj, setObj);
 
         return publicUrl;
@@ -2695,11 +2757,9 @@
         updateAeAvatarColorToggleUI();
     }
 
-    // Stabilan URL koji se dijeli s userima. Nikad se ne mijenja za dani map/set —
-    // sadrži samo ID-eve, ne i sam link na sliku. Edge Function na tom URL-u sama
-    // dohvaća trenutno važeći export_links.url + updated_at iz baze i vraća stranicu
-    // s dinamičkim og:image tagom, tako da Discord uvijek unfurla svježu sliku bez
-    // da se ijedan karakter u ovom linku ikad promijeni.
+    // Stable URL shared with users: contains only IDs, never the image link itself.
+    // The Edge Function behind it looks up the current export image and returns a
+    // page with a dynamic og:image tag, so Discord always unfurls a fresh image.
     function buildViewerUrl(mapId, setId) {
         return `${SUPABASE_URL}/functions/v1/map-view?map=${encodeURIComponent(mapId)}&set=${encodeURIComponent(setId)}`;
     }
